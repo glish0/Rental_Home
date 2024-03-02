@@ -1,7 +1,13 @@
+'use client'
+
 
 import Link from 'next/link'
 import Image from 'next/image'
 import { Flex, Box, Text, Button } from '@chakra-ui/react'
+import { baseUrl, fetchApi } from '@/utils/fetchApi'
+import { useEffect, useState } from 'react'
+import { propertiesForSale, propertiesForRent } from './api/route'
+import Property from '@/components/Property'
 
 
 type BannerProps = {
@@ -14,6 +20,13 @@ type BannerProps = {
   imageUrl: string,
   linkName: string
 } 
+
+type HomeProps = {
+  propertiesForSale: any[];
+  propertiesForRent: any[];
+};
+
+
 
 const Banner = ({purpose, title1 , title2, desc1, desc2, buttonText, linkName, imageUrl } : BannerProps) => {
   return(
@@ -29,7 +42,7 @@ const Banner = ({purpose, title1 , title2, desc1, desc2, buttonText, linkName, i
       <Text color="gray.700" fontSize="lg" fontWeight="medium" paddingBottom="3" paddingTop="3">
         {desc1} <br /> {desc2}
       </Text>
-      <Button fontSize="xl" bg="blue.300" color="white">
+      <Button fontSize="xl" colorScheme='gray'>
         <Link href={linkName}>{buttonText}</Link>
       </Button>
 
@@ -38,9 +51,38 @@ const Banner = ({purpose, title1 , title2, desc1, desc2, buttonText, linkName, i
   )
 }
 
-export default function Home() {
+export default  function Home() {
+  const [rentProperties, setRentProperties] = useState([]);
+  const [saleProperties, setSaleProperties] = useState([]);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const propertiesForSaleData = await propertiesForSale();
+        setSaleProperties(propertiesForSaleData.hits);
+        console.log('rent',propertiesForSaleData.hits);
+      } catch (error) {
+        console.error('Error fetching properties for sale:', error);
+      }
+    }
+
+    fetchData();
+  }, []); 
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const propertiesForRentData = await propertiesForRent();
+        setRentProperties(propertiesForRentData.hits);
+        console.log('rent',propertiesForRentData.hits);
+      } catch (error) {
+        console.error('Error fetching properties for sale:', error);
+      }
+    }
+
+    fetchData();
+  }, []); 
   return (
-    <div>
+    <Box>
       <p>la home page</p>
       <Banner 
         purpose="RENT A HOME"
@@ -52,6 +94,11 @@ export default function Home() {
         linkName='/search?purpose=for=rent'
         imageUrl='https://bayut-production.s3.eu-central-1.amazonaws.com/image/145426814/33973352624c48628e41f2ec460faba4'
       />
+      <Flex flexWrap="wrap">
+        {/* fetch the propertyiest and map over them ''' */}
+        {rentProperties.map((property, index) => <Property property={property} key={index} />)}
+      </Flex>
+
       <Banner 
         purpose="BUY A HOME"
         title1="Find , Buy and Own Your"
@@ -62,6 +109,10 @@ export default function Home() {
         linkName='/search?purpose=for=rent'
         imageUrl='https://bayut-production.s3.eu-central-1.amazonaws.com/image/110993385/6a070e8e1bae4f7d8c1429bc303d2008' 
       />
-    </div>
+      <Flex flexWrap="wrap">
+      {saleProperties.map((property, index) => <Property property={property} key={index} />)}
+      </Flex>
+    </Box>
   )
 }
+
