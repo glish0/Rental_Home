@@ -83,7 +83,7 @@ export default  function Home() {
   }, []); 
   return (
     <Box>
-      <p>la home page</p>
+    
       <Banner 
         purpose="RENT A HOME"
         title1="Rental Homes for"
